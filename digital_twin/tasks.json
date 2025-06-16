@@ -1,0 +1,89 @@
+
+{
+  "version": "2.0.0",
+  "presentation": {
+    "reveal": "always",
+    "panel": "new"
+  },
+  "tasks": [
+    {
+      "label": "Service: nginx",
+      "type": "shell",
+      "command": "minikube service opentwins-ditto-nginx --url",
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Service: extended-api",
+      "type": "shell",
+      "command": "minikube service opentwins-ditto-extended-api --url",
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Service: mosquitto",
+      "type": "shell",
+      "command": "minikube service opentwins-mosquitto --url",
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Service: grafana",
+      "type": "shell",
+      "command": "minikube service opentwins-grafana --url",
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Open All Services",
+      "dependsOn": [
+        "Service: nginx",
+        "Service: extended-api",
+        "Service: mosquitto",
+        "Service: grafana"
+      ],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Minikube",
+      "type": "shell",
+      "command": "minikube start --cpus 4 --disk-size 40gb --memory 8192",
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Set Kube Context",
+      "type": "shell",
+      "command": "kubectl config use-context minikube",
+      "dependsOn": ["Start Minikube"],
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Init Minikube",
+      "dependsOn": [
+        "Start Minikube",
+        "Set Kube Context"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ]
+}
+
+
+  
+

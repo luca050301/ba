@@ -1,0 +1,15 @@
+{
+    "thingId": "ba:irrigation",
+    "policyId": "default:basic_policy",
+    "attributes": {
+        "name": "Irrigation"
+    },
+    "features": {
+        "flow_rate": {
+            "properties": {
+                "value": null,
+                "time": null
+            }
+        }
+    }
+}

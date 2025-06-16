@@ -1,0 +1,25 @@
+{
+    "thingId": "ba:robot",
+    "policyId": "default:basic_policy",
+    "attributes": {
+        "name": "Robot",
+        "description": "Autonomous greenhouse robot"
+    },
+    "features": {
+        "position": {
+            "properties": {
+                "value": null
+            }
+        },
+        "arm_position": {
+            "properties": {
+                "value": null
+            }
+        },
+        "state": {
+            "properties": {
+                "value": null
+            }
+        }
+    }
+}

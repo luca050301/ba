@@ -1,0 +1,25 @@
+{
+    "thingId": "ba:env",
+    "policyId": "default:basic_policy",
+    "attributes": {
+        "name": "Environment",
+        "description": "Environment data"
+    },
+    "features": {
+        "temperature": {
+            "properties": {
+                "value": null
+            }
+        },
+        "light": {
+            "properties": {
+                "value": null
+            }
+        },
+        "humidity": {
+            "properties": {
+                "value": null
+            }
+        }
+    }
+}

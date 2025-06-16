@@ -1,0 +1,35 @@
+{
+    "thingId": "ba:plant",
+    "policyId": "default:basic_policy",
+    "attributes": {
+        "name": "Plant",
+        "description": "type for each plant in the greenhouse"
+    },
+    "features": {
+        "soil_moisture": {
+            "properties": {
+                "value": null
+            }
+        },
+        "soil_nutrients": {
+            "properties": {
+                "value": null
+            }
+        },
+        "health": {
+            "properties": {
+                "value": null
+            }
+        },
+        "ripeness": {
+            "properties": {
+                "value": null
+            }
+        },
+        "datetime_planted": {
+            "properties": {
+                "value": null
+            }
+        }
+    }
+}

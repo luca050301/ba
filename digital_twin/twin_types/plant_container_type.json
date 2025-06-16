@@ -1,0 +1,9 @@
+{
+    "thingId": "ba:plants_container",
+    "policyId": "default:basic_policy",
+    "attributes": {
+        "name": "Plants Parent",
+        "description": "parent container of all plants"
+    },
+    "features": {}
+}

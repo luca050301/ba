@@ -44,8 +44,9 @@ class Robot:
         self,
         plants,
         measurement_queue,
+        action_queue,
         position=0,
-        cycle_time: int = 10  # Time interval for the robot's actions
+        cycle_time: int = 10,  # Time interval for the robot's actions
     ):
         self.chassis = Chassis(plant_count=len(plants), position=position)
         self.arm = Arm()
@@ -60,6 +61,9 @@ class Robot:
         self.cycle_time = cycle_time  # Time interval for the robot's actions
         self.measurement_queue = (
             measurement_queue  # Queue for measurements (to be sent via MQTT)
+        )
+        self.action_queue = (
+            action_queue  # Queue for actions (to be processed by the robot)
         )
         self.logger = logging.getLogger(__name__)
 
@@ -213,10 +217,12 @@ class Robot:
         Moves to the specified plant's position and sends its data via MQTT.
         Also sends the current irrigation flow rate.
         """
-        
+
         self.move_to(plant_id)
         self.set_arm_position(self.plants[plant_id])
-        self.send_mqtt_msg(TwinComponent.PLANT, self.get_plant_data(plant_id), plant_id + 1)
+        self.send_mqtt_msg(
+            TwinComponent.PLANT, self.get_plant_data(plant_id), plant_id + 1
+        )
         self.send_mqtt_msg(
             TwinComponent.ROBOT,
             {
@@ -239,7 +245,9 @@ class Robot:
 
         self.move_to(plant.id, send_mqtt_msg=send_mqtt_msg)
         self.set_arm_position(plant, send_mqtt_msg=send_mqtt_msg)
-        self.plants[plant.id] = Plant(id=plant.id,date_time_planted=datetime.now())  # Create a seedling plant
+        self.plants[plant.id] = Plant(
+            id=plant.id, date_time_planted=datetime.now()
+        )  # Create a seedling plant
 
         self.send_mqtt_msg(
             TwinComponent.ROBOT,
@@ -263,7 +271,7 @@ class Robot:
         """
         if not plant.is_harvestable():
             return
-        
+
         self.logger.info(f"Harvesting plant with ID: {plant.id}")
 
         self.move_to(plant.id, send_mqtt_msg=send_mqtt_msg)
@@ -411,12 +419,20 @@ class Robot:
         """
         Runs the robot's main loop, handling its state and performing actions.
         """
-        
+
         # send a msg for all plants to initialize the MQTT client
         for plant in self.plants:
-            self.send_mqtt_msg(TwinComponent.PLANT, self.get_plant_data(plant.id), plant.id + 1)
-            
-        while True:
-            self.handle_state()
+            self.send_mqtt_msg(
+                TwinComponent.PLANT, self.get_plant_data(plant.id), plant.id + 1
+            )
 
-            time.sleep(self.cycle_time)  # Sleep for a while to simulate time between actions
+        while True:
+            if not self.action_queue.empty():
+                action = self.action_queue.get()
+                action(self)
+            else:
+                self.handle_state()
+
+            time.sleep(
+                self.cycle_time
+            )  # Sleep for a while to simulate time between actions

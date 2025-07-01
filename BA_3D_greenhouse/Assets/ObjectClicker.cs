@@ -54,7 +54,14 @@ public class ObjectClicker : MonoBehaviour
     {
         if (go != null && int.TryParse(go.name, out _))
         {
-            GetData(go.name);
+            try
+            {
+                GetData(go.name);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Error sending data: {e.Message}");
+            }
         }
     }
 }

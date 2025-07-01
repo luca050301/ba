@@ -18,6 +18,8 @@ WIP
 
 WIP
 
+Das WebGL Build kann über index.html im "unity_webgl_build" Verzeichnis mit einem Webserver (z.B. VS Code Live Server) geöffnet werden um eine Demo der Visualisierung zu sehen.
+
 ## Installation
 
 Clone the repository to your local machine

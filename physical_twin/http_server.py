@@ -14,8 +14,9 @@ class CORSRequestHandler(http.server.SimpleHTTPRequestHandler):
     Also serves the Unity WebGL build files for the grafana panel.
     """
 
-    def __init__(self, robot: Robot, *args, **kwargs):
+    def __init__(self, robot: Robot,action_queue, *args, **kwargs):
         self.robot = robot
+        self.action_queue = action_queue # queue for actions to be performed by the robot
         super().__init__(*args, **kwargs)
 
     def end_headers(self):
@@ -77,7 +78,10 @@ class CORSRequestHandler(http.server.SimpleHTTPRequestHandler):
         params = parse_qs(query)
         i = params.get("i", [None])[0]
         if i is not None:
-            self.robot.move_to(int(i) - 1)
+            #self.robot.move_to(int(i) - 1)
+            self.action_queue.put(
+                lambda robot: robot.move_to(int(i) - 1)
+            )
 
         self.respond_ok("moved to plant " + str(i))
 
@@ -145,7 +149,11 @@ class CORSRequestHandler(http.server.SimpleHTTPRequestHandler):
         if plant_id is None:
             self.respond(400, "Invalid request path")
             return
-        self.robot.water_plant(self.robot.plants[plant_id - 1])
+        self.action_queue.put(
+            lambda robot: robot.water_plant(robot.plants[plant_id - 1])
+        )
+        print("CALLED FOR PLANT ID:", plant_id)
+        #self.robot.water_plant(self.robot.plants[plant_id - 1])
 
         self.respond_ok(f"Watered plant {plant_id}")
 
@@ -157,7 +165,10 @@ class CORSRequestHandler(http.server.SimpleHTTPRequestHandler):
         if plant_id is None:
             self.respond(400, "Invalid request path")
             return
-        self.robot.fertilize_plant(self.robot.plants[plant_id - 1])
+        #self.robot.fertilize_plant(self.robot.plants[plant_id - 1])
+        self.action_queue.put(
+            lambda robot: robot.fertilize_plant(robot.plants[plant_id - 1])
+        )
 
         self.respond_ok(f"Fertilized plant {plant_id}")
 
@@ -169,7 +180,10 @@ class CORSRequestHandler(http.server.SimpleHTTPRequestHandler):
         if plant_id is None:
             self.respond(400, "Invalid request path")
             return
-        self.robot.harvest_plant(self.robot.plants[plant_id - 1])
+        #self.robot.harvest_plant(self.robot.plants[plant_id - 1])
+        self.action_queue.put(
+            lambda robot: robot.harvest_plant(robot.plants[plant_id - 1])
+        )
 
         self.respond_ok(f"Harvested plant {plant_id}")
 
@@ -181,7 +195,10 @@ class CORSRequestHandler(http.server.SimpleHTTPRequestHandler):
         if plant_id is None:
             self.respond(400, "Invalid request path")
             return
-        self.robot.seed_plant(self.robot.plants[plant_id - 1])
+        #self.robot.seed_plant(self.robot.plants[plant_id - 1])
+        self.action_queue.put(
+            lambda robot: robot.seed_plant(robot.plants[plant_id - 1])
+        )
 
         self.respond_ok(f"Seeded plant {plant_id}")
 
@@ -193,7 +210,10 @@ class CORSRequestHandler(http.server.SimpleHTTPRequestHandler):
         if plant_id is None:
             self.respond(400, "Invalid request path")
             return
-        self.robot.monitor_plant(plant_id - 1)
+        #self.robot.monitor_plant(plant_id - 1)
+        self.action_queue.put(
+            lambda robot: robot.monitor_plant(plant_id - 1)
+        )
 
         self.respond_ok(f"Monitored plant {plant_id}")
 
@@ -224,7 +244,7 @@ class CORSRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(message.encode())
 
 
-def make_handler(robot):
+def make_handler(robot,action_queue):
     """
     Factory function to create a custom request handler for the HTTP server.
     Args:
@@ -235,16 +255,16 @@ def make_handler(robot):
 
     class CustomHandler(CORSRequestHandler):
         def __init__(self, *args, **kwargs):
-            super().__init__(robot, *args, **kwargs)
+            super().__init__(robot,action_queue, *args, **kwargs)
 
     return CustomHandler
 
 
-def run_http_server(robot: Robot):
+def run_http_server(robot: Robot,action_queue):
     """
     Starts the HTTP server.
     """
-    Handler = make_handler(robot)
+    Handler = make_handler(robot, action_queue)
     with socketserver.TCPServer(("", PORT), Handler) as httpd:
         print(f"Serving at http://localhost:{PORT}")
         httpd.serve_forever()

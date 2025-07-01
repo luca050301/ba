@@ -36,7 +36,7 @@ public class RobotController : MonoBehaviour
         harvestIcon = Resources.Load<Texture2D>("Images/harvest");
         waterIcon = Resources.Load<Texture2D>("Images/water");
         fertilizeIcon = Resources.Load<Texture2D>("Images/fertilize");
-        monitorIcon = Resources.Load<Texture2D>("Images/monitor");
+        monitorIcon = Resources.Load<Texture2D>("Images/monitoring");
         seedIcon = Resources.Load<Texture2D>("Images/seed");
 
         iconHolder = GetComponentInChildren<RawImage>();
@@ -115,6 +115,7 @@ public class RobotController : MonoBehaviour
                 HarvestPlant();
                 break;
             case "monitor":
+            case "monitoring":
                 MonitorPlant();
                 break;
             case "seed":
@@ -122,41 +123,42 @@ public class RobotController : MonoBehaviour
                 break;
 
             default:
+                Debug.LogWarning("Unrecognized action: " + currentAction);
                 iconHolder.enabled = false; // Disable icon holder if action is not recognized
                 break;
         }
         // after 10 secs disable the icon holder
-        Invoke("DisableIconHolder", 10f);
+        Invoke("DisableIconHolder", 5f);
     }
 
     void WaterPlant()
     {
-        iconHolder.texture = waterIcon;
         iconHolder.enabled = true;
+        iconHolder.texture = waterIcon;
         Debug.Log("Watering plant at position: " + targetPosition);
     }
     void FertilizePlant()
     {
-        iconHolder.texture = fertilizeIcon;
         iconHolder.enabled = true;
+        iconHolder.texture = fertilizeIcon;
         Debug.Log("Fertilizing plant at position: " + targetPosition);
     }
     void HarvestPlant()
     {
-        iconHolder.texture = harvestIcon;
         iconHolder.enabled = true;
+        iconHolder.texture = harvestIcon;
         Debug.Log("Harvesting plant at position: " + targetPosition);
     }
     void MonitorPlant()
     {
-        iconHolder.texture = monitorIcon;
         iconHolder.enabled = true;
+        iconHolder.texture = monitorIcon;
         Debug.Log("Monitoring plant at position: " + targetPosition);
     }
     void SeedPlant()
     {
-        iconHolder.texture = seedIcon;
         iconHolder.enabled = true;
+        iconHolder.texture = seedIcon;
         Debug.Log("Seeding plant at position: " + targetPosition);
     }
 

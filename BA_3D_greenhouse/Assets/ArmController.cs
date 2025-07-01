@@ -71,7 +71,15 @@ public class ArmController : MonoBehaviour
 
             if (rotationProgress >= 1f)
             {
-                sendArmPositionToWebGL((Wrist.transform.position - baseWristPosition).ToString());
+                try 
+                {
+                    // Send the final arm position to WebGL
+                    sendArmPositionToWebGL((Wrist.transform.position - baseWristPosition).ToString());
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError($"Error sending arm position: {e.Message}");
+                }
             }
         }
     }
@@ -89,13 +97,14 @@ public class ArmController : MonoBehaviour
 
         // Calculate target rotations based on the target position
         Vector3 directionToTarget = (target.position - Base.transform.position).normalized;
+        Debug.Log($"Base Position: {Base.transform.position}");
+        Debug.Log($"Target Position: {target.position}, Direction to Target: {directionToTarget}");
 
-        // Calculate the base rotation to face the target
-        targetBaseRotation = Quaternion.LookRotation(directionToTarget, Vector3.up);
+       targetBaseRotation = Quaternion.Euler(0f, 0f, directionToTarget.x < 0 ? 0f : 180f); // Rotate around Y-axis
 
-        targetShoulderRotation = Quaternion.Euler(30f, 0f, 0f); // Example angle for shoulder
-        targetElbowRotation = Quaternion.Euler(-50f, 0f, 0f); // Example angle for elbow
-        targetWristRotation = Quaternion.Euler(20f, 0f, 0f); // Example angle for wrist
+        //targetShoulderRotation = Quaternion.Euler(30f, 0f, 0f); // Example angle for shoulder
+       // targetElbowRotation = Quaternion.Euler(-50f, 0f, 0f); // Example angle for elbow
+       // targetWristRotation = Quaternion.Euler(20f, 0f, 0f); // Example angle for wrist
 
         rotationProgress = 0f;
     }

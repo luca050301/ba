@@ -585,7 +585,10 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {},
+        "text": {
+          "titleSize": 50,
+          "valueSize": 25
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -750,7 +753,7 @@
       "pluginVersion": "1.0.0",
       "targets": [
         {
-          "query": "import \"strings\"\r\nimport \"join\"\r\n\r\nplant_age = from(bucket: \"default\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._field == \"value_datetime_planted_properties_value\"\r\n  )\r\n    |>last()\r\n  |> keep(fn: (column) => column =~ /value/ or column =~ /topic/)\r\n  |>keep(columns: [\"_value\",\"topic\"])\r\n   |> map(fn: (r) => {\r\n    parts = strings.split(v: r.topic, t: \"_\")\r\n    return { r with plant_id: parts[length(arr: parts) - 1] }\r\n  })\r\n  |>drop(fn: (column) => column  =~ /topic/)\r\n      |> rename(columns: {_value: \"age\"})\r\n        |> yield(name: \"plant_age\")\r\n\r\nrobot_pos=from(bucket: \"default\")\r\n  |> range(start: v.timeRangeStart, stop:v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._field == \"value_position_properties_value\"\r\n  )\r\n  |> last()\r\n    |>keep(fn: (column) => column  == \"_value\")\r\n            |> set(key: \"temp_id\", value: \"id\")\r\n\r\n          |> rename(columns: {_value: \"position\"})\r\n\r\n\r\nrobot_action = from(bucket: \"default\")\r\n  |> range(start: v.timeRangeStart, stop:v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._field == \"value_action_properties_value\"\r\n  )\r\n  |> last()\r\n    |>keep(columns: [\"_value\",\"_time\"])\r\n        |> set(key: \"temp_id\", value: \"id\")\r\n\r\n          |> rename(columns: {_value: \"action\"})\r\n\r\njoin.full(\r\n  left:robot_pos,\r\n  right: robot_action,\r\n  on: (l,r) => l.temp_id == r.temp_id,\r\n  as: (l, r) => ({position:l.position,action:r.action,time:r._time})\r\n)\r\n",
+          "query": "import \"strings\"\r\nimport \"join\"\r\n\r\n// Existing plant_age query\r\nplant_age = from(bucket: \"default\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._field == \"value_datetime_planted_properties_value\"\r\n  )\r\n  |> last()\r\n  |> keep(fn: (column) => column =~ /value/ or column =~ /topic/)\r\n  |> map(fn: (r) => {\r\n    parts = strings.split(v: r.topic, t: \"_\")\r\n    return { r with plant_id: parts[length(arr: parts) - 1] }\r\n  })\r\n  |> drop(fn: (column) => column =~ /topic/)\r\n  |> rename(columns: {_value: \"age\"})\r\n\r\n// Query for soil moisture\r\nsoil_moisture = from(bucket: \"default\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._field == \"value_soil_moisture_properties_value\"\r\n  )\r\n  |> last()\r\n  |> keep(fn: (column) => column =~ /value/ or column =~ /topic/)\r\n  |> map(fn: (r) => {\r\n    parts = strings.split(v: r.topic, t: \"_\")\r\n    return { r with plant_id: parts[length(arr: parts) - 1] }\r\n  })\r\n  |> drop(fn: (column) => column =~ /topic/)\r\n  |> rename(columns: {_value: \"soil_moisture\"})\r\n\r\n// Query for soil nutrients\r\nsoil_nutrients = from(bucket: \"default\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._field == \"value_soil_nutrients_properties_value\"\r\n  )\r\n  |> last()\r\n  |> keep(fn: (column) => column =~ /value/ or column =~ /topic/)\r\n  |> map(fn: (r) => {\r\n    parts = strings.split(v: r.topic, t: \"_\")\r\n    return { r with plant_id: parts[length(arr: parts) - 1] }\r\n  })\r\n  |> drop(fn: (column) => column =~ /topic/)\r\n  |> rename(columns: {_value: \"soil_nutrients\"})\r\n\r\n// Join soil moisture and soil nutrients on plant_id\r\nsoil_data = join.inner(\r\n  left: soil_moisture,\r\n  right: soil_nutrients,\r\n  on:  (l,r) => l.plant_id == r.plant_id,\r\n  as: (l, r) => ({\r\n    plant_id: l.plant_id,\r\n    soil_moisture: l.soil_moisture,\r\n    soil_nutrients: r.soil_nutrients\r\n  })\r\n)\r\n\r\n// Join soil_data with plant_age on plant_id\r\nplant_with_soil = join.inner(\r\n  left: plant_age,\r\n  right: soil_data,\r\n  on:  (l,r) => l.plant_id == r.plant_id,\r\n  as: (l, r) => ({\r\n    plant_id: l.plant_id,\r\n    age: l.age,\r\n    soil_moisture: r.soil_moisture,\r\n    soil_nutrients: r.soil_nutrients\r\n  })\r\n)|> map(fn: (r) => ({\r\n  plant_id: r.plant_id,\r\n  age: r.age,\r\n  recommended_action: if float(v: r.soil_moisture) < 50 then \"water\"\r\n                      else if float(v: r.soil_nutrients) < 50 then \"fertilize\"\r\n                      else \"\"\r\n}))\r\n\r\nplant_with_soil |> yield(name: \"plant_with_soil\")\r\n\r\nrobot_pos=from(bucket: \"default\")\r\n  |> range(start: v.timeRangeStart, stop:v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._field == \"value_position_properties_value\"\r\n  )\r\n  |> last()\r\n    |>keep(fn: (column) => column  == \"_value\")\r\n            |> set(key: \"temp_id\", value: \"id\")\r\n\r\n          |> rename(columns: {_value: \"position\"})\r\n\r\n\r\nrobot_action = from(bucket: \"default\")\r\n  |> range(start: v.timeRangeStart, stop:v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._field == \"value_action_properties_value\"\r\n  )\r\n  |> last()\r\n    |>keep(columns: [\"_value\",\"_time\"])\r\n        |> set(key: \"temp_id\", value: \"id\")\r\n\r\n          |> rename(columns: {_value: \"action\"})\r\n\r\njoin.full(\r\n  left:robot_pos,\r\n  right: robot_action,\r\n  on: (l,r) => l.temp_id == r.temp_id,\r\n  as: (l, r) => ({position:l.position,action:r.action,time:r._time})\r\n)",
           "refId": "A"
         },
         {
@@ -964,6 +967,7 @@
               "placement": {
                 "height": 53,
                 "left": 45,
+                "rotation": 0,
                 "top": 81,
                 "width": 155
               },
@@ -1281,7 +1285,41 @@
           },
           "unit": "%"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byValue",
+              "options": {
+                "op": "gte",
+                "reducer": "last",
+                "value": 0
+              }
+            },
+            "properties": [
+              {
+                "id": "actions",
+                "value": [
+                  {
+                    "fetch": {
+                      "body": "{}",
+                      "headers": [
+                        [
+                          "Content-Type",
+                          "application/json"
+                        ]
+                      ],
+                      "method": "POST",
+                      "queryParams": [],
+                      "url": "https://webhook.site/1f4977b4-13ee-41c7-9294-4254951ac230"
+                    },
+                    "title": "trigger irrigation",
+                    "type": "fetch"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 3,
@@ -1486,7 +1524,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red"
+                "color": "red",
+                "value": null
               },
               {
                 "color": "green",
@@ -1551,7 +1590,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue"
+                "color": "blue",
+                "value": null
               },
               {
                 "color": "green",
@@ -1616,7 +1656,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red"
+                "color": "red",
+                "value": null
               },
               {
                 "color": "green",
@@ -1712,6 +1753,6 @@
   "timezone": "browser",
   "title": "New dashboard",
   "uid": "ceok92twpn1fke",
-  "version": 50,
+  "version": 57,
   "weekStart": ""
 }

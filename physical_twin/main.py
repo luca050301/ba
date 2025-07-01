@@ -39,8 +39,9 @@ def main():
     # message queue for measurements, the robot puts measurements into this queue
     # and the MQTT client reads from it to publish to the MQTT broker
     measurement_queue = Queue()
+    action_queue = Queue()
 
-    robot = Robot(plants=plants, measurement_queue=measurement_queue,cycle_time=robot_cycle_time)
+    robot = Robot(plants=plants, measurement_queue=measurement_queue,action_queue=action_queue,cycle_time=robot_cycle_time)
 
     robot.set_state(RobotState.AUTO)  # Set the robot to auto mode
 
@@ -54,7 +55,7 @@ def main():
     threading.Thread(target=mqtt_client.run_mqtt_client, daemon=True).start()
 
     threading.Thread(
-        target=http_server.run_http_server, args=(robot,), daemon=True
+        target=http_server.run_http_server, args=(robot,action_queue), daemon=True
     ).start()
 
     robot.run()  # Start the robot's main loop

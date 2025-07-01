@@ -55,9 +55,11 @@ def send_message(msg):
     formatted_features = features_to_ditto_protocol(msg["data"])
     ditto_msg = to_ditto_protocol(twin_name, formatted_features)
 
+    # Uncomment the following line to print the message being published
     print(
         f"Publishing message to {topic + namespace + '/' + twin_name}: {json.dumps(ditto_msg)}"
     )
+    
     # Publish the message to the MQTT broker
     client.publish(topic + namespace + "/" + twin_name, json.dumps(ditto_msg))
 

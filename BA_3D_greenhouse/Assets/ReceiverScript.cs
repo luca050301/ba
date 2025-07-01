@@ -25,6 +25,11 @@ public class ReceiverScript : MonoBehaviour
     private RobotController robotController;
     private DateTime timeOfLastAction = DateTime.MinValue;
 
+    private Texture2D harvestIcon;
+    private Texture2D seedIcon;
+    private Texture2D waterIcon;
+    private Texture2D fertilizeIcon;
+
     // list of plants currently in the scene
     GameObject[] plantPrefabs = null;
 
@@ -36,37 +41,42 @@ public class ReceiverScript : MonoBehaviour
         }
         robotController = robot.GetComponent<RobotController>();
 
+        harvestIcon = Resources.Load<Texture2D>("Images/harvest");
+        seedIcon = Resources.Load<Texture2D>("Images/seed");
+        waterIcon = Resources.Load<Texture2D>("Images/water");
+        fertilizeIcon = Resources.Load<Texture2D>("Images/fertilize");
+
         // tests for development purposes only
 #if UNITY_EDITOR
-        Receive(
-            "{\"series\":[[{\"time\":1749983188297,\"action\":\"water\",\"position\":3}],[{\"age\":\"null\",\"plant_id\":\"1\"},{\"age\":\"2025-03-11 20:35:42.027785\",\"plant_id\":\"10\"},{\"age\":\"2025-05-10 04:26:08.027785\",\"plant_id\":\"11\"},{\"age\":\"2025-06-15 09:35:42.027785\",\"plant_id\":\"12\"},{\"age\":\"2025-03-20 15:35:20.027785\",\"plant_id\":\"13\"},{\"age\":\"2025-03-06 22:09:46.027785\",\"plant_id\":\"14\"},{\"age\":\"2025-04-06 18:16:06.027785\",\"plant_id\":\"15\"},{\"age\":\"2025-05-22 17:08:09.027785\",\"plant_id\":\"16\"},{\"age\":\"2025-05-24 03:30:13.027785\",\"plant_id\":\"17\"},{\"age\":\"2025-05-29 21:15:00.027785\",\"plant_id\":\"18\"},{\"age\":\"2025-02-25 16:45:17.027785\",\"plant_id\":\"19\"},{\"age\":\"2025-04-11 06:00:18.311827\",\"plant_id\":\"2\"},{\"age\":\"2025-03-10 03:19:45.324483\",\"plant_id\":\"3\"},{\"age\":\"2025-06-11 06:34:11.335699\",\"plant_id\":\"4\"},{\"age\":\"2025-03-02 20:35:02.354614\",\"plant_id\":\"5\"},{\"age\":\"2025-05-07 05:56:42.373575\",\"plant_id\":\"6\"},{\"age\":\"2025-03-23 07:31:14.027785\",\"plant_id\":\"7\"},{\"age\":\"2025-03-01 14:39:44.027785\",\"plant_id\":\"8\"},{\"age\":\"2025-06-05 23:04:20.027785\",\"plant_id\":\"9\"}]]}"
-        );
-
-        // call receive after 10 secs with param "asd
-        Invoke("Test", 10f);
+        //ManuallyReceive();
 #endif
     }
     // Test method for development purposes only
-    void Test()
+    void SecondReceive()
     {
-        Receive(
-            "{\"series\":[[{\"time\":1749983188297,\"action\":\"seed\",\"position\":13}],[{\"age\":\"null\",\"plant_id\":\"1\"},{\"age\":\"2025-03-11 20:35:42.027785\",\"plant_id\":\"10\"},{\"age\":\"2025-05-10 04:26:08.027785\",\"plant_id\":\"11\"},{\"age\":\"2025-06-15 09:35:42.027785\",\"plant_id\":\"12\"},{\"age\":\"2025-03-20 15:35:20.027785\",\"plant_id\":\"13\"},{\"age\":\"2025-03-06 22:09:46.027785\",\"plant_id\":\"14\"},{\"age\":\"2025-04-06 18:16:06.027785\",\"plant_id\":\"15\"},{\"age\":\"2025-05-22 17:08:09.027785\",\"plant_id\":\"16\"},{\"age\":\"2025-05-24 03:30:13.027785\",\"plant_id\":\"17\"},{\"age\":\"2025-05-29 21:15:00.027785\",\"plant_id\":\"18\"},{\"age\":\"2025-02-25 16:45:17.027785\",\"plant_id\":\"19\"},{\"age\":\"2025-04-11 06:00:18.311827\",\"plant_id\":\"2\"},{\"age\":\"2025-03-10 03:19:45.324483\",\"plant_id\":\"3\"},{\"age\":\"2025-06-11 06:34:11.335699\",\"plant_id\":\"4\"},{\"age\":\"2025-03-02 20:35:02.354614\",\"plant_id\":\"5\"},{\"age\":\"2025-05-07 05:56:42.373575\",\"plant_id\":\"6\"},{\"age\":\"2025-03-23 07:31:14.027785\",\"plant_id\":\"7\"},{\"age\":\"2025-03-01 14:39:44.027785\",\"plant_id\":\"8\"},{\"age\":\"2025-06-05 23:04:20.027785\",\"plant_id\":\"9\"}]]}"
-        );
+        Receive("{\"series\":[[{\"recommended_action\":null,\"plant_id\":\"1\",\"age\":\"2025-04-02 18:32:52.381379\"},{\"recommended_action\":null,\"plant_id\":\"10\",\"age\":\"2025-04-17 10:49:47.381379\"},{\"recommended_action\":null,\"plant_id\":\"11\",\"age\":\"2025-05-07 19:00:07.381379\"},{\"recommended_action\":null,\"plant_id\":\"12\",\"age\":\"2025-04-11 17:16:54.381379\"},{\"recommended_action\":null,\"plant_id\":\"13\",\"age\":\"2025-03-19 13:29:31.381379\"},{\"recommended_action\":null,\"plant_id\":\"14\",\"age\":\"None\"},{\"recommended_action\":null,\"plant_id\":\"15\",\"age\":\"2025-05-27 16:13:31.381379\"},{\"recommended_action\":null,\"plant_id\":\"16\",\"age\":\"2025-05-04 15:54:44.381379\"},{\"recommended_action\":null,\"plant_id\":\"17\",\"age\":\"2025-05-11 07:16:41.381379\"},{\"recommended_action\":null,\"plant_id\":\"18\",\"age\":\"2025-04-22 20:28:10.381379\"},{\"recommended_action\":null,\"plant_id\":\"19\",\"age\":\"2025-04-25 04:31:42.381379\"},{\"recommended_action\":null,\"plant_id\":\"2\",\"age\":\"2025-03-24 21:51:26.381379\"},{\"recommended_action\":null,\"plant_id\":\"20\",\"age\":\"2025-04-18 11:31:49.381379\"},{\"recommended_action\":null,\"plant_id\":\"3\",\"age\":\"2025-04-27 23:02:39.381379\"},{\"recommended_action\":null,\"plant_id\":\"4\",\"age\":\"2025-05-16 16:50:40.381379\"},{\"recommended_action\":null,\"plant_id\":\"5\",\"age\":\"2025-04-22 00:42:14.381379\"},{\"recommended_action\":null,\"plant_id\":\"6\",\"age\":\"2025-05-01 09:44:19.381379\"},{\"recommended_action\":null,\"plant_id\":\"7\",\"age\":\"2025-06-29 05:14:28.381379\"},{\"recommended_action\":null,\"plant_id\":\"8\",\"age\":\"2025-06-01 22:12:35.381379\"},{\"recommended_action\":null,\"plant_id\":\"9\",\"age\":\"2025-04-23 13:59:27.381379\"}],[{\"time\":1751309115963,\"action\":\"monitor\",\"position\":1}]]}");
     }
+
+
+    public void ManuallyReceive()
+    {
+
+        Receive("{\"series\":[[{\"time\":1751308304800,\"action\":\"monitoring\",\"position\":20}],[{\"plant_id\":\"1\",\"age\":\"2025-04-13 20:40:02.679555\",\"recommended_action\":null},{\"plant_id\":\"10\",\"age\":\"2025-03-16 21:15:09.679555\",\"recommended_action\":null},{\"plant_id\":\"11\",\"age\":\"2025-05-25 05:50:48.679555\",\"recommended_action\":null},{\"plant_id\":\"12\",\"age\":\"2025-03-14 04:21:06.679555\",\"recommended_action\":null},{\"plant_id\":\"13\",\"age\":\"2025-06-19 01:19:12.679555\",\"recommended_action\":null},{\"plant_id\":\"14\",\"age\":\"2025-06-25 23:10:42.679555\",\"recommended_action\":null},{\"plant_id\":\"15\",\"age\":\"2025-04-21 19:08:03.679555\",\"recommended_action\":null},{\"plant_id\":\"16\",\"age\":\"2025-03-28 21:00:53.679555\",\"recommended_action\":null},{\"plant_id\":\"17\",\"age\":\"2025-04-14 15:14:41.679555\",\"recommended_action\":null},{\"plant_id\":\"18\",\"age\":\"2025-05-31 23:29:00.679555\",\"recommended_action\":null},{\"plant_id\":\"19\",\"age\":\"2025-03-17 14:39:25.679555\",\"recommended_action\":null},{\"plant_id\":\"2\",\"age\":\"None\",\"recommended_action\":null},{\"plant_id\":\"20\",\"age\":\"2025-05-11 12:41:46.679555\",\"recommended_action\":null},{\"plant_id\":\"3\",\"age\":\"2025-04-30 22:13:49.679555\",\"recommended_action\":null},{\"plant_id\":\"4\",\"age\":\"2025-03-25 16:02:39.679555\",\"recommended_action\":null},{\"plant_id\":\"5\",\"age\":\"2025-03-29 12:57:37.679555\",\"recommended_action\":null},{\"plant_id\":\"6\",\"age\":\"2025-05-11 09:35:08.679555\",\"recommended_action\":null},{\"plant_id\":\"7\",\"age\":\"2025-06-06 20:42:20.679555\",\"recommended_action\":null},{\"plant_id\":\"8\",\"age\":\"2025-05-08 19:08:09.679555\",\"recommended_action\":null},{\"plant_id\":\"9\",\"age\":\"2025-04-14 11:00:46.679555\",\"recommended_action\":null}]]}");
+        Invoke("SecondReceive", 5f);
+}
     /// <summary>
     /// Receives a JSON string parameter, processes it, and updates the plant prefabs and robot actions accordingly.
     /// </summary>
     void Receive(string param)
     {
-        Debug.Log("Received parameter: " + param);
-
+        
         if (string.IsNullOrEmpty(param))
         {
             Debug.LogError("Received empty parameter.");
             return;
         }
         // Format the JSON string to match the expected structure
-        if (param.StartsWith("{ \"series\":[[{ \"age\""))
+        if (param.StartsWith("{\"series\":[[{\"age\"") || param.StartsWith("{\"series\":[[{\"plant_id\"") || param.StartsWith("{\"series\":[[{\"recommended_action\""))
         {
             param = param.Replace("[[", "[").Replace(",[", ",\"robot\":").Replace("]]", "");
         }
@@ -90,7 +100,7 @@ public class ReceiverScript : MonoBehaviour
                 // display the recommended action for each plant
                 foreach (var plant in jsonData.series)
                 {
-                    TimeSpan? ageSpan = plant.age != "null" ? DateTime.Now - DateTime.Parse(plant.age) : null;
+                    TimeSpan? ageSpan = (plant.age != "null" && plant.age != "None") ? DateTime.Now - DateTime.Parse(plant.age) : null;
 
                     GameObject plantPrefab = GetPlantPrefabForAge(ageSpan);
 
@@ -104,7 +114,7 @@ public class ReceiverScript : MonoBehaviour
                             Destroy(plantPrefabs[plantId]); // Destroy the old plant prefab
                         }
 
-                        Vector3 position = new Vector3(plantId % 2 == 0 ? -1 : 1, 0, plantId / 2);
+                        Vector3 position = new Vector3(plantId % 2 == 0 ? -1 : 1, 0, (plantId-1) / 2);
                         Quaternion rotation = Quaternion.identity; // Default rotation
 
                         plantPrefabs[plantId] = Instantiate(plantPrefab, position, rotation);
@@ -183,29 +193,34 @@ public class ReceiverScript : MonoBehaviour
     /// </summary>
     void DisplayRecommendedAction(GameObject plantPrefab, string recommendedAction)
     {
-        if (plantPrefab.tag == "empty")
-        {
-            recommendedAction = "seed";
-        }
-        else if (plantPrefab.tag == "ripe")
-        {
-            recommendedAction = "harvest";
-        }
-        // load png from Resources folder
-
-        Texture2D actionIcon = Resources.Load<Texture2D>("Images/" + recommendedAction);
-
         var imageComponent = plantPrefab.GetComponentInChildren<UnityEngine.UI.RawImage>();
 
-        if (actionIcon == null)
-        {
-            // make invisible
-            imageComponent.enabled = false;
-            return;
-        }
-
-
-        imageComponent.texture = actionIcon;
         imageComponent.enabled = true; // Make sure the image is visible
+        
+        if (plantPrefab.tag == "ripe")
+        {
+            imageComponent.texture = harvestIcon;
+        }
+        else if (plantPrefab.tag == "empty")
+        {
+            imageComponent.texture = seedIcon;
+        }
+        else if (recommendedAction == "water")
+        {
+            imageComponent.texture = waterIcon;
+        }
+        else if (recommendedAction == "fertilize")
+        {
+            imageComponent.texture = fertilizeIcon;
+        }
+        else if (recommendedAction == "")
+        {
+            imageComponent.enabled = false; // Hide the image if no action is recommended
+        }
+        else
+        {
+            Debug.LogWarning("Unknown recommended action: " + recommendedAction);
+            imageComponent.enabled = false; // Hide the image if the action is unknown
+        }
     }
 }

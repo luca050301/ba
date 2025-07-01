@@ -19,7 +19,7 @@
             {
                 "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
                 "key": "buildOutputDirList",
-                "value": "{\"m_Value\":\"C:/Users/lucam/VSCode/digtwin/unity/Build;C:/Users/lucam/VSCode/digtwin/unity;C:/Users/lucam/Unity Projects/BA_Robot_Konfigurator/WebGL Builds;;;;;;;\"}"
+                "value": "{\"m_Value\":\"C:/Users/lucam/VSCode/ba_repo/ba/unity_webgl_build;C:/Users/lucam/VSCode/digtwin/unity/Build;C:/Users/lucam/VSCode/digtwin/unity;C:/Users/lucam/Unity Projects/BA_Robot_Konfigurator/WebGL Builds;;;;;;\"}"
             }
         ]
     }

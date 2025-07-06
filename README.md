@@ -4,21 +4,21 @@ Repository for my Bachelor's Thesis "Digital Twins for the Automation of a Green
 
 ## Overview
 
-WIP
-
 ### Physical Twin
 
-WIP
+Simulation of a robot that connects to the digital twin. Simulates working on greenhouse horticulture tasks, cycling through the plants. The robot reports its data to the digital twin via MQTT and is controlled via HTTP. 
+
+The plants are also simulated and updated each simulation cycle.
 
 ### Digital Twin
 
-WIP
+OpenTwins digital twin of the robot, the greenhouse environment, all the plants and the irrigation system.
 
 ### Unity Visualization
 
-WIP
+Unity visualization of the greenhouse. Visualizes robot movement and actions as well as planth growth and recommended actions for each plant. Built with WebGL and integrated into the Grafana dashboard.
 
-Das WebGL Build kann über index.html im "unity_webgl_build" Verzeichnis mit einem Webserver (z.B. VS Code Live Server) geöffnet werden um eine Demo der Visualisierung zu sehen.
+The WebGL build can be opened via `index.html` in the `unity_webgl_build` directory using a web server (e.g. VS Code Live Server) to see a demo of the visualization.
 
 ## Installation
 

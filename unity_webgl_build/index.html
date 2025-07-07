@@ -56,6 +56,9 @@
         updateBannerVisibility();
       }
 
+      // dummy function to catch react unity events, otherwise the build crashes 
+    function dispatchReactUnityEvent(){}
+
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/unity.loader.js";
       var config = {
